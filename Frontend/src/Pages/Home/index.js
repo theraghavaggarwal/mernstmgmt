@@ -6,7 +6,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { BsTrash3 } from "react-icons/bs";
 import NoStudent from "../../Components/NoStudent";
 
-import API_BASE from "./api"; // ✅ dynamic API base
+import API_BASE from "../../api"; // ✅ dynamic API base
 
 export default function Home() {
   const [students, setStudents] = useState([]);

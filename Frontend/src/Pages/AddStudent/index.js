@@ -3,11 +3,12 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-import API_BASE from "./api"; // ✅ dynamic API base
+import API_BASE from "../../api";
 
 export default function AddStudent() {
   const [name, setName] = useState("");
-  const [Regno, setRegno] = useState("");
+  const [Regno, setRegno] = useState(
+    "");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");

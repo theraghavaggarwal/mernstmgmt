@@ -1,28 +1,26 @@
 import "./App.css";
 import Header from "./Components/Header";
+import Footer from "./Components/Footer";
 import AddStudent from "./Pages/AddStudent";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home";
 import ShowOne from "./Components/ShowOne";
-import Footer from "./Components/Footer";
 import NotFound from "./Components/NotFound";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <div>
+    <Router>
       <Header />
 
-      <Router>
-        <Routes>
-          <Route path="/" exact Component={Home} />
-          <Route path="*" exact Component={NotFound} />
-          <Route path="/add-student" exact Component={AddStudent} />
-          <Route path="/get/:id" exact Component={ShowOne} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/add-student" element={<AddStudent />} />
+        <Route path="/get/:id" element={<ShowOne />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
 
       <Footer />
-    </div>
+    </Router>
   );
 }
 
