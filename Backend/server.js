@@ -29,7 +29,9 @@ mongoose
 // Routes
 const studentRoute = require("./routes/students_route");
 app.use("/student", studentRoute);
-
+app.get("/", (req, res) => {
+  res.send("Backend is running!");
+});
 // Export as serverless handler
 module.exports = app;
 module.exports.handler = serverless(app);
