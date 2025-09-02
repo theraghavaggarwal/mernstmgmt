@@ -3,18 +3,19 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8070";
+import API_BASE from "../../api"; // ✅ Correct relative import
 
 const ShowOne = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [user, setUser] = useState({});
 
+  // Fetch user data
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/student/get/${id}`);
-        setUser(res.data.user);
+        const res = await axios.get(`${API_BASE}/student/get/${id}`);
+        setUser(res.data.user || res.data); // fallback if backend returns directly
       } catch (err) {
         Swal.fire("Error", err.message, "error");
       }
@@ -22,32 +23,31 @@ const ShowOne = () => {
     getUser();
   }, [id]);
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setUser((prevUser) => ({
-      ...prevUser,
-      [name]: value,
-    }));
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await axios.put(`${API_BASE_URL}/student/update/${id}`, user);
-      Swal.fire({
+      const result = await Swal.fire({
         title: "Do you want to save the changes?",
         showDenyButton: true,
         showCancelButton: true,
         confirmButtonText: "Save",
         denyButtonText: `Don't save`,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire("Saved!", "", "success");
-          navigate("/");
-        } else if (result.isDenied) {
-          Swal.fire("Changes are not saved", "", "info");
-        }
       });
+
+      if (result.isConfirmed) {
+        await axios.put(`${API_BASE}/student/update/${id}`, user);
+        Swal.fire("Saved!", "", "success");
+        navigate("/");
+      } else if (result.isDenied) {
+        Swal.fire("Changes are not saved", "", "info");
+      }
     } catch (err) {
       Swal.fire("Not Updated", err.message, "error");
     }
@@ -55,8 +55,8 @@ const ShowOne = () => {
 
   return (
     <div className="container p-5">
-      <form>
-        <div className="form-group">
+      <form onSubmit={handleFormSubmit}>
+        <div className="form-group mb-3">
           <label htmlFor="name">Name</label>
           <input
             type="text"
@@ -65,9 +65,11 @@ const ShowOne = () => {
             name="name"
             value={user.name || ""}
             onChange={handleInputChange}
+            required
           />
         </div>
-        <div className="form-group">
+
+        <div className="form-group mb-3">
           <label htmlFor="Regno">Registration Number</label>
           <input
             type="text"
@@ -76,20 +78,24 @@ const ShowOne = () => {
             name="Regno"
             value={user.Regno || ""}
             onChange={handleInputChange}
+            required
           />
         </div>
-        <div className="form-group">
+
+        <div className="form-group mb-3">
           <label htmlFor="email">Email</label>
           <input
-            type="text"
+            type="email"
             className="form-control"
             id="email"
             name="email"
             value={user.email || ""}
             onChange={handleInputChange}
+            required
           />
         </div>
-        <div className="form-group">
+
+        <div className="form-group mb-3">
           <label htmlFor="phone">Phone</label>
           <input
             type="text"
@@ -98,9 +104,11 @@ const ShowOne = () => {
             name="phone"
             value={user.phone || ""}
             onChange={handleInputChange}
+            required
           />
         </div>
-        <div className="form-group">
+
+        <div className="form-group mb-3">
           <label htmlFor="gender">Gender</label>
           <select
             className="form-control"
@@ -108,14 +116,15 @@ const ShowOne = () => {
             name="gender"
             value={user.gender || ""}
             onChange={handleInputChange}
+            required
           >
             <option value="">-- Select Gender --</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
         </div>
-        <br />
-        <button onClick={handleFormSubmit} className="btn btn-primary">
+
+        <button type="submit" className="btn btn-primary">
           Submit
         </button>
       </form>

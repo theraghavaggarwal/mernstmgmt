@@ -6,12 +6,12 @@ import { FaRegEdit } from "react-icons/fa";
 import { BsTrash3 } from "react-icons/bs";
 import NoStudent from "../../Components/NoStudent";
 
-import API_BASE from "../../api"; // ✅ dynamic API base
+import API_BASE from "../../api"; // ✅ Correct relative path
 
 export default function Home() {
   const [students, setStudents] = useState([]);
 
-  // ✅ Fetch students
+  // ✅ Fetch students on component mount
   useEffect(() => {
     const getStudents = async () => {
       try {
@@ -24,9 +24,9 @@ export default function Home() {
     getStudents();
   }, []);
 
-  // ✅ Delete student
-  const deleteUser = (id) => {
-    Swal.fire({
+  // ✅ Delete student with async/await
+  const deleteUser = async (id) => {
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
@@ -34,19 +34,17 @@ export default function Home() {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .delete(`${API_BASE}/student/delete/${id}`)
-          .then((res) => {
-            Swal.fire("Deleted!", res.data.status, "success");
-            setStudents(students.filter((s) => s._id !== id));
-          })
-          .catch((err) => {
-            Swal.fire("Not Deleted!", err.message, "error");
-          });
-      }
     });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await axios.delete(`${API_BASE}/student/delete/${id}`);
+        Swal.fire("Deleted!", res.data.status, "success");
+        setStudents((prev) => prev.filter((s) => s._id !== id));
+      } catch (err) {
+        Swal.fire("Not Deleted!", err.message, "error");
+      }
+    }
   };
 
   return (

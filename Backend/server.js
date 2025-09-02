@@ -1,27 +1,35 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const serverless = require("serverless-http");
-
-dotenv.config();
+require("dotenv").config();
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-const URL = process.env.MONGO_URI;  // use env variable instead of hardcoding
 
-mongoose.connect(URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// MongoDB Connection
+const MONGO_URI = process.env.MONGO_URI;
+if (!MONGO_URI) {
+  console.error("Error: MONGO_URI not defined in environment variables");
+  process.exit(1);
+}
 
-const connection = mongoose.connection;
-connection.once("open", () => {
-  console.log("MongoDB Connection Success!");
-});
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connection Success!"))
+  .catch((err) => console.error("MongoDB Connection Error:", err));
+
+// Routes
 const studentRoute = require("./routes/students_route");
 app.use("/student", studentRoute);
+
+// Export as serverless handler
+module.exports = app;
 module.exports.handler = serverless(app);
